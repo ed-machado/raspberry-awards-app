@@ -108,7 +108,7 @@ public class MovieController {
           @RequestParam(value = "page", required = false)
           Integer page,
       @Parameter(description = "Tamanho da página", example = "10")
-          @RequestParam(value = "size", required = false, defaultValue = "10")
+          @RequestParam(value = "size", required = false)
           Integer size,
       @Parameter(description = "Campo para ordenação", example = "id")
           @RequestParam(value = "sort", required = false, defaultValue = "id")

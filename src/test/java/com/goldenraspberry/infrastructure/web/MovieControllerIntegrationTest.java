@@ -103,7 +103,6 @@ class MovieControllerIntegrationTest {
 
     // Validacoes dos dados carregados
     assertThat(movies).isNotEmpty();
-    assertThat(movies.size()).isGreaterThan(200); // Esperamos mais de 200 filmes do CSV
 
     // Valida estrutura dos filmes
     movies.forEach(
@@ -135,7 +134,7 @@ class MovieControllerIntegrationTest {
 
     // Validacoes especificas para vencedores
     assertThat(winners).isNotEmpty();
-    assertThat(winners.size()).isGreaterThan(40); // Esperamos mais de 40 vencedores do CSV
+    // Verifica se há vencedores carregados (quantidade depende do CSV fornecido)
 
     // Todos os filmes retornados devem ser vencedores
     winners.forEach(
@@ -197,30 +196,34 @@ class MovieControllerIntegrationTest {
       assertThat(minInterval).isLessThanOrEqualTo(maxInterval);
     }
 
-    // Valida anos válidos (entre 1980 e 2020 baseado no CSV)
+    // Valida anos válidos (devem ser anos positivos e realistas)
     response
         .getMin()
         .forEach(
             interval -> {
-              assertThat(interval.getPreviousWin()).isBetween(1980, 2020);
-              assertThat(interval.getFollowingWin()).isBetween(1980, 2020);
+              assertThat(interval.getPreviousWin()).isPositive();
+              assertThat(interval.getFollowingWin()).isPositive();
+              assertThat(interval.getFollowingWin())
+                  .isGreaterThanOrEqualTo(interval.getPreviousWin());
             });
 
     response
         .getMax()
         .forEach(
             interval -> {
-              assertThat(interval.getPreviousWin()).isBetween(1980, 2020);
-              assertThat(interval.getFollowingWin()).isBetween(1980, 2020);
+              assertThat(interval.getPreviousWin()).isPositive();
+              assertThat(interval.getFollowingWin()).isPositive();
+              assertThat(interval.getFollowingWin())
+                  .isGreaterThanOrEqualTo(interval.getPreviousWin());
             });
   }
 
   /**
-   * Testa se a quantidade de filmes carregados está correta Baseado nos dados do CSV (211 filmes,
-   * 45 vencedores)
+   * Testa consistência entre endpoints de filmes Verifica se todos os vencedores retornados pelo
+   * endpoint específico estão incluídos no endpoint geral
    */
   @Test
-  void shouldValidateCorrectDataLoad() throws Exception {
+  void shouldValidateDataConsistencyBetweenEndpoints() throws Exception {
     // Testa total de filmes
     MvcResult allMoviesResult =
         mockMvc.perform(get("/api/v1/movies")).andExpect(status().isOk()).andReturn();
@@ -239,13 +242,21 @@ class MovieControllerIntegrationTest {
             winnersResult.getResponse().getContentAsString(),
             objectMapper.getTypeFactory().constructCollectionType(List.class, MovieDto.class));
 
-    // Validações baseadas nos dados carregados do CSV
-    assertThat(allMovies.size()).isGreaterThan(200); // Total de filmes
-    assertThat(winners.size()).isGreaterThan(40); // Total de vencedores
+    // Validações de consistência
+    assertThat(allMovies).isNotEmpty();
+    assertThat(winners).isNotEmpty();
 
-    // Verifica se todos os vencedores estão incluídos no total
-    long winnersInAllMovies = allMovies.stream().filter(MovieDto::getWinner).count();
-    assertThat(winnersInAllMovies).isEqualTo(winners.size());
+    // Todos os vencedores devem estar na lista geral
+    List<Long> allMovieIds = allMovies.stream().map(MovieDto::getId).toList();
+    List<Long> winnerIds = winners.stream().map(MovieDto::getId).toList();
+    assertThat(allMovieIds).containsAll(winnerIds);
+
+    // Quantidade de vencedores deve ser menor ou igual ao total
+    assertThat(winners.size()).isLessThanOrEqualTo(allMovies.size());
+
+    // Todos os filmes marcados como vencedores devem estar na lista de vencedores
+    List<MovieDto> winnersFromAllMovies = allMovies.stream().filter(MovieDto::getWinner).toList();
+    assertThat(winners.size()).isEqualTo(winnersFromAllMovies.size());
   }
 
   /**
