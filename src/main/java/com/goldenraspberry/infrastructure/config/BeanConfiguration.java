@@ -5,19 +5,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-/**
- * Configuração principal de beans e injecao de dependencias.
- */
+/** Configuração principal de beans e injecao de dependencias. */
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "com.goldenraspberry.infrastructure.persistence")
-@ComponentScan(basePackages = {
-    "com.goldenraspberry.domain",
-    "com.goldenraspberry.application",
-    "com.goldenraspberry.infrastructure",
-    "com.goldenraspberry.common"
-})
+@ComponentScan(
+    basePackages = {
+      "com.goldenraspberry.domain",
+      "com.goldenraspberry.application",
+      "com.goldenraspberry.infrastructure",
+      "com.goldenraspberry.common"
+    })
 public class BeanConfiguration {
 
-    // TODO
+  // TODO
 }

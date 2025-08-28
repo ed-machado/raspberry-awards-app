@@ -1,109 +1,161 @@
 package com.goldenraspberry.application.exception;
 
+import com.goldenraspberry.application.dto.ProblemDetailDto;
 import com.goldenraspberry.common.exception.BusinessException;
 import com.goldenraspberry.common.exception.TechnicalException;
+import jakarta.validation.ConstraintViolationException;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Manipulador global de excecoes
- * Mapeia excecoes de dominio para respostas HTTP
- */
+/** Manipulador global de excecoes Mapeia excecoes de dominio para respostas HTTP */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    /**
-     * Trata excecoes de negocio
-     * @param ex Excecao de negocio
-     * @param request Req web
-     * @return Resposta HTTP com erro 400
-     */
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Map<String, Object>> handleBusinessException(
-            BusinessException ex, WebRequest request) {
+  /**
+   * Trata excecoes de negocio
+   *
+   * @param ex Excecao de negocio
+   * @param request Req web
+   * @return Resposta HTTP com erro 400
+   */
+  @ExceptionHandler(BusinessException.class)
+  public ResponseEntity<ProblemDetailDto> handleBusinessException(
+      BusinessException ex, WebRequest request) {
 
-        logger.warn("Erro de negocio: {}", ex.getMessage(), ex);
+    logger.warn("Erro de negocio: {}", ex.getMessage(), ex);
 
-        Map<String, Object> errorResponse = createErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Erro de Negocio",
-                ex.getMessage(),
-                request.getDescription(false)
-        );
+    ProblemDetailDto problemDetail =
+        new ProblemDetailDto(
+            "about:blank",
+            "Erro de Negócio",
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            extractPath(request));
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+    return new ResponseEntity<>(problemDetail, HttpStatus.BAD_REQUEST);
+  }
 
-    /**
-     * Trata excecoes tecnicas
-     * @param ex Excecao tecnica
-     * @param request Req web
-     * @return Resposta HTTP com erro 500
-     */
-    @ExceptionHandler(TechnicalException.class)
-    public ResponseEntity<Map<String, Object>> handleTechnicalException(
-            TechnicalException ex, WebRequest request) {
+  /**
+   * Trata excecoes tecnicas
+   *
+   * @param ex Excecao tecnica
+   * @param request Req web
+   * @return Resposta HTTP com erro 500
+   */
+  @ExceptionHandler(TechnicalException.class)
+  public ResponseEntity<ProblemDetailDto> handleTechnicalException(
+      TechnicalException ex, WebRequest request) {
 
-        logger.error("Erro tecnico: {}", ex.getMessage(), ex);
+    logger.error("Erro tecnico: {}", ex.getMessage(), ex);
 
-        Map<String, Object> errorResponse = createErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Erro Tecnico",
-                "Erro interno do servidor",
-                request.getDescription(false)
-        );
+    ProblemDetailDto problemDetail =
+        new ProblemDetailDto(
+            "about:blank",
+            "Erro Técnico",
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "Erro interno do servidor",
+            extractPath(request));
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return new ResponseEntity<>(problemDetail, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
-    /**
-     * Trata excecoes genericas nao mapeadas
-     * @param ex Excecao generica
-     * @param request Req web
-     * @return Resposta HTTP com erro 500
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(
-            Exception ex, WebRequest request) {
+  /**
+   * Trata excecoes genericas nao mapeadas
+   *
+   * @param ex Excecao generica
+   * @param request Req web
+   * @return Resposta HTTP com erro 500
+   */
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ProblemDetailDto> handleGenericException(Exception ex, WebRequest request) {
 
-        logger.error("Erro nao mapeado: {}", ex.getMessage(), ex);
+    logger.error("Erro nao mapeado: {}", ex.getMessage(), ex);
 
-        Map<String, Object> errorResponse = createErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Erro Interno",
-                "Erro interno do servidor",
-                request.getDescription(false)
-        );
+    ProblemDetailDto problemDetail =
+        new ProblemDetailDto(
+            "about:blank",
+            "Erro Interno",
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "Erro interno do servidor",
+            extractPath(request));
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return new ResponseEntity<>(problemDetail, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
-    /**
-     * Cria resposta padronizada de erro
-     * @param status Codigo de status HTTP
-     * @param error Tipo do erro
-     * @param message Mensagem do erro
-     * @param path Caminho da request
-     * @return Map com dados do erro
-     */
-    private Map<String, Object> createErrorResponse(int status, String error, String message, String path) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("timestamp", LocalDateTime.now());
-        errorResponse.put("status", status);
-        errorResponse.put("error", error);
-        errorResponse.put("message", message);
-        errorResponse.put("path", path.replace("uri=", ""));
-        return errorResponse;
-    }
+  /**
+   * Trata erros de validação de Bean Validation
+   *
+   * @param ex Exceção de validação
+   * @param request Requisição web
+   * @return Resposta HTTP com erro 400
+   */
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ProblemDetailDto> handleValidationException(
+      MethodArgumentNotValidException ex, WebRequest request) {
+
+    logger.warn("Erro de validação: {}", ex.getMessage());
+
+    String validationErrors =
+        ex.getBindingResult().getFieldErrors().stream()
+            .map(error -> error.getField() + ": " + error.getDefaultMessage())
+            .collect(Collectors.joining(", "));
+
+    ProblemDetailDto problemDetail =
+        new ProblemDetailDto(
+            "about:blank",
+            "Erro de Validação",
+            HttpStatus.BAD_REQUEST.value(),
+            "Dados inválidos: " + validationErrors,
+            extractPath(request));
+
+    return new ResponseEntity<>(problemDetail, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * Trata violações de constraint de validação
+   *
+   * @param ex Exceção de violação de constraint
+   * @param request Requisição web
+   * @return Resposta HTTP com erro 400
+   */
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ProblemDetailDto> handleConstraintViolationException(
+      ConstraintViolationException ex, WebRequest request) {
+
+    logger.warn("Violação de constraint: {}", ex.getMessage());
+
+    String constraintErrors =
+        ex.getConstraintViolations().stream()
+            .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+            .collect(Collectors.joining(", "));
+
+    ProblemDetailDto problemDetail =
+        new ProblemDetailDto(
+            "about:blank",
+            "Erro de Validação",
+            HttpStatus.BAD_REQUEST.value(),
+            "Violação de restrições: " + constraintErrors,
+            extractPath(request));
+
+    return new ResponseEntity<>(problemDetail, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * Extrai o caminho da requisição
+   *
+   * @param request Requisição web
+   * @return Caminho limpo da requisição
+   */
+  private String extractPath(WebRequest request) {
+    return request.getDescription(false).replace("uri=", "");
+  }
 }

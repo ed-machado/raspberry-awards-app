@@ -3,49 +3,37 @@ package com.goldenraspberry.application.dto;
 import jakarta.validation.constraints.*;
 import java.util.List;
 
-/**
- * DTO para representar um filme na resposta da API Contem todas as informacoes relevantes do filme
- */
-public class MovieDto {
-
-  private Long id;
+/** DTO para entrada de dados de filme (POST/PUT) */
+public class MovieInputDto {
 
   @NotNull(message = "Ano é obrigatório")
-  @Min(value = 1500, message = "Ano deve ser maior que 1900")
-  @Max(value = 2100, message = "Ano deve ser menor que 2100")
+  @Min(value = 1900, message = "Ano deve ser maior ou igual a 1900")
+  @Max(value = 2100, message = "Ano deve ser menor ou igual a 2100")
   private Integer year;
 
   @NotBlank(message = "Título é obrigatório")
-  @Size(max = 255, message = "Título deve ter no máximo 255 caracteres")
+  @Size(min = 1, max = 255, message = "Título deve ter entre 1 e 255 caracteres")
   private String title;
 
   @Size(max = 500, message = "Estúdios deve ter no máximo 500 caracteres")
   private String studios;
 
   @NotEmpty(message = "Lista de produtores não pode estar vazia")
-  private List<String> producers;
+  @Size(min = 1, message = "Deve haver pelo menos um produtor")
+  private List<@NotBlank(message = "Nome do produtor não pode estar vazio") String> producers;
 
   @NotNull(message = "Status de vencedor é obrigatório")
   private Boolean winner;
 
-  public MovieDto() {}
+  public MovieInputDto() {}
 
-  public MovieDto(
-      Long id, Integer year, String title, String studios, List<String> producers, Boolean winner) {
-    this.id = id;
+  public MovieInputDto(
+      Integer year, String title, String studios, List<String> producers, Boolean winner) {
     this.year = year;
     this.title = title;
     this.studios = studios;
     this.producers = producers;
     this.winner = winner;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
   }
 
   public Integer getYear() {
@@ -86,5 +74,23 @@ public class MovieDto {
 
   public void setWinner(Boolean winner) {
     this.winner = winner;
+  }
+
+  @Override
+  public String toString() {
+    return "MovieInputDto{"
+        + "year="
+        + year
+        + ", title='"
+        + title
+        + '\''
+        + ", studios='"
+        + studios
+        + '\''
+        + ", producers="
+        + producers
+        + ", winner="
+        + winner
+        + '}';
   }
 }

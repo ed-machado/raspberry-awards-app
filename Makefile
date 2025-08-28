@@ -11,19 +11,19 @@ help:
 default: help
 
 install:
-	./mvnw clean install -DskipTests
+	mvn clean install -DskipTests
 
 build:
-	./mvnw clean compile
+	mvn clean compile
 
 clean:
-	./mvnw clean
+	mvn clean
 
 test:
-	./mvnw test
+	mvn test
 
 run:
 	@echo "Aplicação disponível em: http://localhost:8080"
-	@echo "Swagger UI: http://localhost:8080/swagger-ui.html"
+	@echo "Swagger UI: http://localhost:8080/docs"
 	@echo "H2 Console: http://localhost:8080/h2-console"
-	./mvnw spring-boot:run
+	mvn spring-boot:run

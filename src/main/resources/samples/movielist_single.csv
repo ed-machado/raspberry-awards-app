@@ -1,0 +1,22 @@
+year;title;studios;producers;winner
+1980;Only Winner Movie;Single Studio;Single Producer;yes
+1981;Non Winner Movie 1;Studio A;Producer A;
+1982;Non Winner Movie 2;Studio B;Producer B;
+1983;Non Winner Movie 3;Studio C;Producer C;
+1984;Non Winner Movie 4;Studio D;Producer D;
+1985;Non Winner Movie 5;Studio E;Producer E;
+1986;Another Winner;Single Studio;Another Producer;yes
+1987;Non Winner Movie 6;Studio F;Producer F;
+1988;Non Winner Movie 7;Studio G;Producer G;
+1989;Non Winner Movie 8;Studio H;Producer H;
+1990;Non Winner Movie 9;Studio I;Producer I;
+1991;Non Winner Movie 10;Studio J;Producer J;
+1992;Third Winner;Single Studio;Third Producer;yes
+1993;Non Winner Movie 11;Studio K;Producer K;
+1994;Non Winner Movie 12;Studio L;Producer L;
+1995;Non Winner Movie 13;Studio M;Producer M;
+1996;Non Winner Movie 14;Studio N;Producer N;
+1997;Non Winner Movie 15;Studio O;Producer O;
+1998;Fourth Winner;Single Studio;Fourth Producer;yes
+1999;Non Winner Movie 16;Studio P;Producer P;
+2000;Non Winner Movie 17;Studio Q;Producer Q;

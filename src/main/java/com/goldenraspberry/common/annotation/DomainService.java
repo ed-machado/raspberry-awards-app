@@ -1,19 +1,16 @@
 package com.goldenraspberry.common.annotation;
 
+import java.lang.annotation.*;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
 
-import java.lang.annotation.*;
-
-/**
- * Annotation para marcar classes de domínio.
- */
+/** Annotation para marcar classes de domínio. */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Component
 public @interface DomainService {
 
-    @AliasFor(annotation = Component.class)
-    String value() default "";
+  @AliasFor(annotation = Component.class)
+  String value() default "";
 }
