@@ -59,13 +59,6 @@ O projeto segue os princípios da **Arquitetura Hexagonal (Ports and Adapters)**
 - **DataInitializer**: Inicializador automático de dados
 - **ProducerIntervalServiceImpl**: Implementação do serviço de intervalos
 
-## 🧪 Testes
-
-- **Testes de Integração Completos**: Todos os testes utilizam `@SpringBootTest` e carregam o contexto completo da aplicação
-- **Cobertura Abrangente**: Validação de endpoints REST, persistência JPA, regras de negócio e casos de uso
-- **Dados Reais**: Testes executam com dados carregados do CSV e validam comportamentos end-to-end
-- **Transacionais**: Testes que modificam dados utilizam `@Transactional` para isolamento
-
 ## 📊 Estrutura do Projeto
 
 ```
@@ -124,18 +117,6 @@ GET /api/v1/producers/intervals
 - **Swagger UI**: http://localhost:8080/docs - Documentação interativa completa
 - **H2 Console**: http://localhost:8080/h2-console - Interface do banco de dados
 
-### 🧪 Testando a API
-```bash
-# Testar endpoint principal
-curl http://localhost:8080/api/v1/producers/intervals
-
-# Verificar health da aplicação
-curl http://localhost:8080/api/v1/health
-
-# Listar todos os filmes
-curl http://localhost:8080/api/v1/movies
-```
-
 ## 📁 Dados da Aplicação
 
 ### Carregamento Automático
@@ -148,27 +129,14 @@ year;title;studios;producers;winner
 1980;Can't Stop the Music;Associated Film Distribution;Allan Carr;yes
 ```
 
-## ⚙️ Configuração
-
-A aplicação utiliza:
-- **Banco H2** em memória para desenvolvimento
-- **Porta 8080** como padrão
-- **Processamento de CSV** com separador `;`
-- **Documentação OpenAPI** disponível via Swagger UI
-
-### Acesso ao Banco H2
-- **URL**: http://localhost:8080/h2-console
-- **JDBC URL**: `jdbc:h2:mem:goldenraspberry`
-- **Usuário**: `sa`
-- **Senha**: (vazia)
-- **Driver**: `org.h2.Driver`
-
 ## 🚀 Como Executar
 
 ### Pré-requisitos
 - **Java 21+** (com suporte a Preview Features)
 - **Maven 3.8+**
-- **Git** para clonar o repositório
+```bash  
+sudo apt update && sudo apt install -y openjdk-21-jdk maven
+```
 
 ### 📋 Guia Completo de Setup
 
@@ -184,7 +152,7 @@ cd raspberry-awards-app
 # Instalar todas as dependências do projeto
 make install
 
-# Ou manualmente:
+# Ou diretamente:
 mvn clean install -DskipTests
 ```
 
@@ -193,7 +161,7 @@ mvn clean install -DskipTests
 # Compilar o projeto
 make build
 
-# Ou manualmente:
+# Ou diretamente:
 mvn clean compile
 ```
 
@@ -202,7 +170,7 @@ mvn clean compile
 # Executar todos os testes de integração
 make test
 
-# Ou manualmente:
+# Ou diretamente:
 mvn test
 ```
 
@@ -211,7 +179,7 @@ mvn test
 # Iniciar a aplicação
 make run
 
-# Ou manualmente:
+# Ou diretamente:
 mvn spring-boot:run
 ```
 
@@ -221,11 +189,28 @@ Após executar, a aplicação estará disponível em:
 - **Documentação Swagger**: http://localhost:8080/docs
 - **Console H2**: http://localhost:8080/h2-console
 
-### 🛠️ Comandos Makefile Disponíveis
-```bash
-# Ver todos os comandos disponíveis
-make help
+### Acesso ao Banco H2
+- **URL**: http://localhost:8080/h2-console
+- **JDBC URL**: `jdbc:h2:mem:goldenraspberry`
+- **Usuário**: `sa`
+- **Senha**: (vazia)
+- **Driver**: `org.h2.Driver`
 
-# Limpar arquivos gerados
-make clean
+### 🧪 Testando a API
+```bash
+# Testar endpoint principal
+curl http://localhost:8080/api/v1/producers/intervals
+
+# Verificar health da aplicação
+curl http://localhost:8080/api/v1/health
+
+# Listar todos os filmes
+curl http://localhost:8080/api/v1/movies
 ```
+
+## Testes
+
+- **Testes de Integração Completos**: Todos os testes utilizam `@SpringBootTest` e carregam o contexto completo da aplicação
+- **Cobertura Abrangente**: Validação de endpoints REST, persistência JPA, regras de negócio e casos de uso
+- **Dados Reais**: Testes executam com dados carregados do CSV e validam comportamentos end-to-end
+- **Transacionais**: Testes que modificam dados utilizam `@Transactional` para isolamento
