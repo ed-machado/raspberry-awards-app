@@ -176,7 +176,7 @@ A aplicação utiliza:
 ```bash
 # Clone o projeto
 git clone <URL_DO_REPOSITORIO>
-cd golden-teste
+cd raspberry-awards-app
 ```
 
 #### 2. Setup e Instalação de Dependências
@@ -229,8 +229,3 @@ make help
 # Limpar arquivos gerados
 make clean
 ```
-
-### URLs Disponíveis após `make run`
-- **Aplicação**: http://localhost:8080
-- **Swagger UI**: http://localhost:8080/docs
-- **H2 Console**: http://localhost:8080/h2-console
