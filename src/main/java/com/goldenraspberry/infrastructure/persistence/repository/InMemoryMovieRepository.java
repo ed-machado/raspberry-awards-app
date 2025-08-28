@@ -9,6 +9,9 @@ import com.goldenraspberry.infrastructure.persistence.repository.MovieJpaReposit
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 /** MovieRepository com persistencia JPA Implementacao do repositorio de filmes usando JPA */
@@ -28,6 +31,13 @@ public class InMemoryMovieRepository implements MovieRepository {
   public List<Movie> findAll() {
     List<MovieJpaEntity> entities = jpaRepository.findAll();
     return entityMapper.toDomainList(entities);
+  }
+
+  @Override
+  public Page<Movie> findAll(Pageable pageable) {
+    Page<MovieJpaEntity> entityPage = jpaRepository.findAll(pageable);
+    List<Movie> movies = entityMapper.toDomainList(entityPage.getContent());
+    return new PageImpl<>(movies, pageable, entityPage.getTotalElements());
   }
 
   @Override

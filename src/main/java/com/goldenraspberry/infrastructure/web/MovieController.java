@@ -2,9 +2,11 @@ package com.goldenraspberry.infrastructure.web;
 
 import com.goldenraspberry.application.dto.MovieDto;
 import com.goldenraspberry.application.dto.MovieInputDto;
+import com.goldenraspberry.application.dto.PagedResponseDto;
 import com.goldenraspberry.application.dto.ProducerIntervalResponseDto;
 import com.goldenraspberry.application.service.MovieApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -73,14 +75,20 @@ public class MovieController {
   }
 
   /**
-   * Obter todos os filmes GET /api/v1/movies
+   * Obter todos os filmes GET /api/v1/movies Suporta paginação através dos parâmetros page, size e
+   * sort
    *
-   * @return Lista de todos os filmes
+   * @param page Número da página (padrão: 0)
+   * @param size Tamanho da página (padrão: 20)
+   * @param sort Campo para ordenação (padrão: id)
+   * @return Lista paginada de filmes ou lista completa se não houver parâmetros de paginação
    */
   @GetMapping("/movies")
   @Operation(
       summary = "Listar todos os filmes",
-      description = "Retorna a lista completa de todos os filmes carregados do arquivo CSV")
+      description =
+          "Retorna a lista completa de todos os filmes carregados do arquivo CSV. Suporta paginação"
+              + " através dos parâmetros page, size e sort.")
   @ApiResponses(
       value = {
         @ApiResponse(
@@ -95,9 +103,30 @@ public class MovieController {
             description = "Erro interno do servidor",
             content = @Content(mediaType = "application/json"))
       })
-  public ResponseEntity<List<MovieDto>> getAllMovies() {
-    List<MovieDto> movies = movieApplicationService.getAllMovies();
-    return ResponseEntity.ok(movies);
+  public ResponseEntity<?> getAllMovies(
+      @Parameter(description = "Número da página (baseado em zero)", example = "0")
+          @RequestParam(value = "page", required = false)
+          Integer page,
+      @Parameter(description = "Tamanho da página", example = "10")
+          @RequestParam(value = "size", required = false, defaultValue = "10")
+          Integer size,
+      @Parameter(description = "Campo para ordenação", example = "id")
+          @RequestParam(value = "sort", required = false, defaultValue = "id")
+          String sort) {
+
+    // Se não há parâmetros de paginação, retorna lista completa (comportamento original)
+    if (page == null && size == null) {
+      List<MovieDto> movies = movieApplicationService.getAllMovies();
+      return ResponseEntity.ok(movies);
+    }
+
+    // Se há parâmetros de paginação, usa o endpoint paginado
+    int pageNumber = page != null ? page : 0;
+    int pageSize = size != null ? size : 10;
+
+    PagedResponseDto<MovieDto> pagedMovies =
+        movieApplicationService.getAllMoviesPaged(pageNumber, pageSize, sort);
+    return ResponseEntity.ok(pagedMovies);
   }
 
   /**

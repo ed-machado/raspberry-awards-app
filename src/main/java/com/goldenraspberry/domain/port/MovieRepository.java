@@ -4,6 +4,8 @@ import com.goldenraspberry.domain.model.Movie;
 import com.goldenraspberry.domain.model.Year;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /** Repository interface de Movie */
 public interface MovieRepository {
@@ -14,6 +16,14 @@ public interface MovieRepository {
    * @return Lista de todos os filmes
    */
   List<Movie> findAll();
+
+  /**
+   * Encontra todos os filmes com paginação
+   *
+   * @param pageable Configuração de paginação
+   * @return Página de filmes
+   */
+  Page<Movie> findAll(Pageable pageable);
 
   /**
    * Encontra filme por ID

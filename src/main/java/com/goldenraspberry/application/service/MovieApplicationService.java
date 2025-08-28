@@ -2,9 +2,11 @@ package com.goldenraspberry.application.service;
 
 import com.goldenraspberry.application.dto.MovieDto;
 import com.goldenraspberry.application.dto.MovieInputDto;
+import com.goldenraspberry.application.dto.PagedResponseDto;
 import com.goldenraspberry.application.dto.ProducerIntervalResponseDto;
 import com.goldenraspberry.application.usecase.CreateMovieUseCase;
 import com.goldenraspberry.application.usecase.DeleteMovieUseCase;
+import com.goldenraspberry.application.usecase.GetAllMoviesPagedUseCase;
 import com.goldenraspberry.application.usecase.GetAllMoviesUseCase;
 import com.goldenraspberry.application.usecase.GetMovieByIdUseCase;
 import com.goldenraspberry.application.usecase.GetProducerIntervalsUseCase;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 public class MovieApplicationService {
 
   private final GetAllMoviesUseCase getAllMoviesUseCase;
+  private final GetAllMoviesPagedUseCase getAllMoviesPagedUseCase;
   private final GetWinnerMoviesUseCase getWinnerMoviesUseCase;
   private final GetProducerIntervalsUseCase getProducerIntervalsUseCase;
   private final CreateMovieUseCase createMovieUseCase;
@@ -30,6 +33,7 @@ public class MovieApplicationService {
   @Autowired
   public MovieApplicationService(
       GetAllMoviesUseCase getAllMoviesUseCase,
+      GetAllMoviesPagedUseCase getAllMoviesPagedUseCase,
       GetWinnerMoviesUseCase getWinnerMoviesUseCase,
       GetProducerIntervalsUseCase getProducerIntervalsUseCase,
       CreateMovieUseCase createMovieUseCase,
@@ -37,6 +41,7 @@ public class MovieApplicationService {
       DeleteMovieUseCase deleteMovieUseCase,
       GetMovieByIdUseCase getMovieByIdUseCase) {
     this.getAllMoviesUseCase = getAllMoviesUseCase;
+    this.getAllMoviesPagedUseCase = getAllMoviesPagedUseCase;
     this.getWinnerMoviesUseCase = getWinnerMoviesUseCase;
     this.getProducerIntervalsUseCase = getProducerIntervalsUseCase;
     this.createMovieUseCase = createMovieUseCase;
@@ -56,6 +61,23 @@ public class MovieApplicationService {
       return getAllMoviesUseCase.execute();
     } catch (Exception e) {
       throw new BusinessException("Erro ao obter todos os filmes: " + e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Obtem todos os filmes do sistema com paginacao
+   *
+   * @param page Numero da pagina (comeca em 0)
+   * @param size Tamanho da pagina
+   * @param sort Campo para ordenacao (opcional)
+   * @return Resposta paginada com filmes
+   * @throws BusinessException se ocorrer erro de negocio
+   */
+  public PagedResponseDto<MovieDto> getAllMoviesPaged(int page, int size, String sort) {
+    try {
+      return getAllMoviesPagedUseCase.execute(page, size, sort);
+    } catch (Exception e) {
+      throw new BusinessException("Erro ao obter filmes paginados: " + e.getMessage(), e);
     }
   }
 
