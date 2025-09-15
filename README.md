@@ -59,6 +59,13 @@ O projeto segue os princípios da **Arquitetura Hexagonal (Ports and Adapters)**
 - **DataInitializer**: Inicializador automático de dados
 - **ProducerIntervalServiceImpl**: Implementação do serviço de intervalos
 
+## 🧪 Testes
+
+- **Testes de Integração Completos**: Todos os testes utilizam `@SpringBootTest` e carregam o contexto completo da aplicação
+- **Cobertura Abrangente**: Validação de endpoints REST, persistência JPA, regras de negócio e casos de uso
+- **Dados Reais**: Testes executam com dados carregados do CSV e validam comportamentos end-to-end
+- **Transacionais**: Testes que modificam dados utilizam `@Transactional` para isolamento
+
 ## 📊 Estrutura do Projeto
 
 ```
@@ -134,9 +141,7 @@ year;title;studios;producers;winner
 ### Pré-requisitos
 - **Java 21+** (com suporte a Preview Features)
 - **Maven 3.8+**
-```bash  
-sudo apt update && sudo apt install -y openjdk-21-jdk maven
-```
+- **Git** para clonar o repositório
 
 ### 📋 Guia Completo de Setup
 
@@ -152,7 +157,7 @@ cd raspberry-awards-app
 # Instalar todas as dependências do projeto
 make install
 
-# Ou diretamente:
+# Ou manualmente:
 mvn clean install -DskipTests
 ```
 
@@ -161,7 +166,7 @@ mvn clean install -DskipTests
 # Compilar o projeto
 make build
 
-# Ou diretamente:
+# Ou manualmente:
 mvn clean compile
 ```
 
@@ -170,7 +175,7 @@ mvn clean compile
 # Executar todos os testes de integração
 make test
 
-# Ou diretamente:
+# Ou manualmente:
 mvn test
 ```
 
@@ -179,7 +184,7 @@ mvn test
 # Iniciar a aplicação
 make run
 
-# Ou diretamente:
+# Ou manualmente:
 mvn spring-boot:run
 ```
 
