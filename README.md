@@ -65,6 +65,27 @@ O projeto segue os princípios da **Arquitetura Hexagonal (Ports and Adapters)**
 - **Cobertura Abrangente**: Validação de endpoints REST, persistência JPA, regras de negócio e casos de uso
 - **Dados Reais**: Testes executam com dados carregados do CSV e validam comportamentos end-to-end
 - **Transacionais**: Testes que modificam dados utilizam `@Transactional` para isolamento
+- **Arquivo de Teste**: Os testes utilizam o arquivo `test/resources/movielist.csv` que contém dados específicos para validação
+
+### 🎯 Teste Principal do Endpoint de Intervalos
+
+O teste que valida o endpoint `/api/v1/producers/intervals` está localizado em:
+
+**Arquivo**: `src/test/java/com/goldenraspberry/infrastructure/web/MovieControllerIntegrationTest.java`
+
+**Método**: `shouldValidateProducerIntervalsWithRealData()`
+
+**Validações realizadas**:
+- ✅ Estrutura da resposta JSON (campos `min` e `max`)
+- ✅ Intervalo mínimo: **Joel Silver** com intervalo de **1 ano** (1990 → 1991)
+- ✅ Intervalo máximo: **Matthew Vaughn** com intervalo de **13 anos** (2002 → 2015)
+
+**Como executar apenas este teste**:
+```bash
+./mvnw test -Dtest=MovieControllerIntegrationTest#shouldValidateProducerIntervalsWithRealData
+```
+
+**Dados utilizados**: O teste utiliza o arquivo `test/resources/movielist.csv` que contém os mesmos dados de produção, garantindo que os cálculos de intervalos sejam validados com dados reais.
 
 ## 📊 Estrutura do Projeto
 
@@ -124,83 +145,6 @@ GET /api/v1/producers/intervals
 - **Swagger UI**: http://localhost:8080/docs - Documentação interativa completa
 - **H2 Console**: http://localhost:8080/h2-console - Interface do banco de dados
 
-## 📁 Dados da Aplicação
-
-### Carregamento Automático
-A aplicação carrega automaticamente os dados do arquivo `movielist.csv` localizado em `src/main/resources/` durante a inicialização.
-
-### Formato do CSV
-O arquivo utiliza o formato:
-```
-year;title;studios;producers;winner
-1980;Can't Stop the Music;Associated Film Distribution;Allan Carr;yes
-```
-
-## 🚀 Como Executar
-
-### Pré-requisitos
-- **Java 21+** (com suporte a Preview Features)
-- **Maven 3.8+**
-- **Git** para clonar o repositório
-
-### 📋 Guia Completo de Setup
-
-#### 1. Clone do Repositório
-```bash
-# Clone o projeto
-git clone <URL_DO_REPOSITORIO>
-cd raspberry-awards-app
-```
-
-#### 2. Setup e Instalação de Dependências
-```bash
-# Instalar todas as dependências do projeto
-make install
-
-# Ou manualmente:
-mvn clean install -DskipTests
-```
-
-#### 3. Build do Projeto
-```bash
-# Compilar o projeto
-make build
-
-# Ou manualmente:
-mvn clean compile
-```
-
-#### 4. Executar Testes de Integração
-```bash
-# Executar todos os testes de integração
-make test
-
-# Ou manualmente:
-mvn test
-```
-
-#### 5. Executar a Aplicação
-```bash
-# Iniciar a aplicação
-make run
-
-# Ou manualmente:
-mvn spring-boot:run
-```
-
-#### 6. Acessar a Aplicação
-Após executar, a aplicação estará disponível em:
-- **API Base**: http://localhost:8080/api/v1
-- **Documentação Swagger**: http://localhost:8080/docs
-- **Console H2**: http://localhost:8080/h2-console
-
-### Acesso ao Banco H2
-- **URL**: http://localhost:8080/h2-console
-- **JDBC URL**: `jdbc:h2:mem:goldenraspberry`
-- **Usuário**: `sa`
-- **Senha**: (vazia)
-- **Driver**: `org.h2.Driver`
-
 ### 🧪 Testando a API
 ```bash
 # Testar endpoint principal
@@ -213,9 +157,101 @@ curl http://localhost:8080/api/v1/health
 curl http://localhost:8080/api/v1/movies
 ```
 
-## Testes
+## 📁 Dados da Aplicação
 
-- **Testes de Integração Completos**: Todos os testes utilizam `@SpringBootTest` e carregam o contexto completo da aplicação
-- **Cobertura Abrangente**: Validação de endpoints REST, persistência JPA, regras de negócio e casos de uso
-- **Dados Reais**: Testes executam com dados carregados do CSV e validam comportamentos end-to-end
-- **Transacionais**: Testes que modificam dados utilizam `@Transactional` para isolamento
+### Carregamento Automático
+A aplicação carrega automaticamente os dados do arquivo `movielist.csv` localizado em `src/main/resources/` durante a inicialização.
+
+### Formato do CSV
+O arquivo utiliza o formato:
+```
+year;title;studios;producers;winner
+1980;Can't Stop the Music;Associated Film Distribution;Allan Carr;yes
+```
+
+## ⚙️ Configuração
+
+A aplicação utiliza:
+- **Banco H2** em memória para desenvolvimento
+- **Porta 8080** como padrão
+- **Processamento de CSV** com separador `;`
+- **Documentação OpenAPI** disponível via Swagger UI
+
+### Acesso ao Banco H2
+- **URL**: http://localhost:8080/h2-console
+- **JDBC URL**: `jdbc:h2:mem:goldenraspberry`
+- **Usuário**: `sa`
+- **Senha**: (vazia)
+- **Driver**: `org.h2.Driver`
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+- **Java 21+** (com suporte a Preview Features)
+- **Git** para clonar o repositório
+- **Não é necessário instalar Maven** - o projeto inclui o Maven Wrapper
+
+### 📋 Guia Completo de Setup
+
+#### 1. Clone do Repositório
+```bash
+# Clone o projeto
+git clone <URL_DO_REPOSITORIO>
+cd golden-teste
+```
+
+#### 2. Setup e Instalação de Dependências
+```bash
+# Instalar todas as dependências do projeto
+make install
+
+# Ou manualmente:
+./mvnw clean install -DskipTests
+```
+
+#### 3. Build do Projeto
+```bash
+# Compilar o projeto
+make build
+
+# Ou manualmente:
+./mvnw clean compile
+```
+
+#### 4. Executar Testes de Integração
+```bash
+# Executar todos os testes de integração
+make test
+
+# Ou manualmente:
+./mvnw test
+```
+
+#### 5. Executar a Aplicação
+```bash
+# Iniciar a aplicação
+make run
+
+# Ou manualmente:
+./mvnw spring-boot:run
+```
+
+#### 6. Acessar a Aplicação
+Após executar, a aplicação estará disponível em:
+- **API Base**: http://localhost:8080/api/v1
+- **Documentação Swagger**: http://localhost:8080/docs
+- **Console H2**: http://localhost:8080/h2-console
+
+### 🛠️ Comandos Makefile Disponíveis
+```bash
+# Ver todos os comandos disponíveis
+make help
+
+# Limpar arquivos gerados
+make clean
+```
+
+### URLs Disponíveis após `make run`
+- **Aplicação**: http://localhost:8080
+- **Swagger UI**: http://localhost:8080/docs
+- **H2 Console**: http://localhost:8080/h2-console
