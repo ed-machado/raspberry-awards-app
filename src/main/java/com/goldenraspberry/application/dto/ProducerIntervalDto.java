@@ -1,5 +1,6 @@
 package com.goldenraspberry.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 
 /**
@@ -18,11 +19,13 @@ public class ProducerIntervalDto {
   @NotNull(message = "Ano da vitória anterior é obrigatório")
   @Min(value = 1900, message = "Ano deve ser maior que 1900")
   @Max(value = 2100, message = "Ano deve ser menor que 2100")
+  @JsonProperty("previous_win")
   private Integer previousWin;
 
   @NotNull(message = "Ano da vitória seguinte é obrigatório")
   @Min(value = 1900, message = "Ano deve ser maior que 1900")
   @Max(value = 2100, message = "Ano deve ser menor que 2100")
+  @JsonProperty("following_win")
   private Integer followingWin;
 
   public ProducerIntervalDto() {}
@@ -65,5 +68,20 @@ public class ProducerIntervalDto {
 
   public void setFollowingWin(Integer followingWin) {
     this.followingWin = followingWin;
+  }
+
+  @Override
+  public String toString() {
+    return "ProducerIntervalDto{"
+        + "producer='"
+        + producer
+        + '\''
+        + ", interval="
+        + interval
+        + ", previousWin="
+        + previousWin
+        + ", followingWin="
+        + followingWin
+        + '}';
   }
 }

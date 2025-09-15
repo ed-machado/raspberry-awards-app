@@ -59,9 +59,10 @@ public class DataInitializer {
         return;
       }
 
-      // Carrega filmes de TODOS os arquivos CSV no resources/
-      logger.info("Carregando filmes de todos os arquivos CSV");
-      List<Movie> movies = csvLoader.loadAllCsvMovies();
+      // Carrega filmes do arquivo CSV configurado
+      logger.info(
+          "Carregando filmes do arquivo CSV configurado: {}", csvLoader.getClass().getSimpleName());
+      List<Movie> movies = csvLoader.loadMovies();
 
       if (movies.isEmpty()) {
         logger.warn("Nenhum filme foi carregado do CSV");

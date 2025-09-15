@@ -65,6 +65,27 @@ O projeto segue os princípios da **Arquitetura Hexagonal (Ports and Adapters)**
 - **Cobertura Abrangente**: Validação de endpoints REST, persistência JPA, regras de negócio e casos de uso
 - **Dados Reais**: Testes executam com dados carregados do CSV e validam comportamentos end-to-end
 - **Transacionais**: Testes que modificam dados utilizam `@Transactional` para isolamento
+- **Arquivo de Teste**: Os testes utilizam o arquivo `test/resources/movielist.csv` que contém dados específicos para validação
+
+### 🎯 Teste Principal do Endpoint de Intervalos
+
+O teste que valida o endpoint `/api/v1/producers/intervals` está localizado em:
+
+**Arquivo**: `src/test/java/com/goldenraspberry/infrastructure/web/MovieControllerIntegrationTest.java`
+
+**Método**: `shouldValidateProducerIntervalsWithRealData()`
+
+**Validações realizadas**:
+- ✅ Estrutura da resposta JSON (campos `min` e `max`)
+- ✅ Intervalo mínimo: **Joel Silver** com intervalo de **1 ano** (1990 → 1991)
+- ✅ Intervalo máximo: **Matthew Vaughn** com intervalo de **13 anos** (2002 → 2015)
+
+**Como executar apenas este teste**:
+```bash
+./mvnw test -Dtest=MovieControllerIntegrationTest#shouldValidateProducerIntervalsWithRealData
+```
+
+**Dados utilizados**: O teste utiliza o arquivo `test/resources/movielist.csv` que contém os mesmos dados de produção, garantindo que os cálculos de intervalos sejam validados com dados reais.
 
 ## 📊 Estrutura do Projeto
 
@@ -167,8 +188,8 @@ A aplicação utiliza:
 
 ### Pré-requisitos
 - **Java 21+** (com suporte a Preview Features)
-- **Maven 3.8+**
 - **Git** para clonar o repositório
+- **Não é necessário instalar Maven** - o projeto inclui o Maven Wrapper
 
 ### 📋 Guia Completo de Setup
 
@@ -185,7 +206,7 @@ cd golden-teste
 make install
 
 # Ou manualmente:
-mvn clean install -DskipTests
+./mvnw clean install -DskipTests
 ```
 
 #### 3. Build do Projeto
@@ -194,7 +215,7 @@ mvn clean install -DskipTests
 make build
 
 # Ou manualmente:
-mvn clean compile
+./mvnw clean compile
 ```
 
 #### 4. Executar Testes de Integração
@@ -203,7 +224,7 @@ mvn clean compile
 make test
 
 # Ou manualmente:
-mvn test
+./mvnw test
 ```
 
 #### 5. Executar a Aplicação
@@ -212,7 +233,7 @@ mvn test
 make run
 
 # Ou manualmente:
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 #### 6. Acessar a Aplicação

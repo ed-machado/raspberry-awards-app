@@ -173,8 +173,9 @@ class MovieControllerIntegrationTest {
   }
 
   /**
-   * Testa validação de dados com intervalos de produtores Verifica se os dados estão consistentes
-   * com o CSV carregado
+   * Testa validação rigorosa de dados com intervalos de produtores. Verifica se os dados estão
+   * EXATAMENTE como esperado baseado no arquivo test/resources/movielist.csv. Este teste deve
+   * FALHAR se os dados forem alterados ou se a lógica de cálculo estiver incorreta.
    */
   @Test
   void shouldValidateProducerIntervalsWithRealData() throws Exception {
@@ -182,40 +183,159 @@ class MovieControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/producers/intervals")).andExpect(status().isOk()).andReturn();
 
     String responseContent = result.getResponse().getContentAsString();
+    System.out.println("[TESTE] Resposta completa da API: " + responseContent);
+
     ProducerIntervalResponseDto response =
         objectMapper.readValue(responseContent, ProducerIntervalResponseDto.class);
 
-    // Validações específicas baseadas nos dados do CSV
-    assertThat(response.getMin()).isNotNull();
-    assertThat(response.getMax()).isNotNull();
+    // Validações estruturais obrigatórias
+    assertThat(response.getMin())
+        .withFailMessage(
+            "ERRO CRÍTICO: Lista de intervalos mínimos não pode ser nula. Resposta: %s",
+            responseContent)
+        .isNotNull()
+        .withFailMessage(
+            "ERRO CRÍTICO: Lista de intervalos mínimos não pode estar vazia. Resposta: %s",
+            responseContent)
+        .isNotEmpty();
 
-    // Se há intervalos mínimos, devem ter intervalo menor ou igual aos máximos
-    if (!response.getMin().isEmpty() && !response.getMax().isEmpty()) {
-      int minInterval = response.getMin().get(0).getInterval();
-      int maxInterval = response.getMax().get(0).getInterval();
-      assertThat(minInterval).isLessThanOrEqualTo(maxInterval);
+    assertThat(response.getMax())
+        .withFailMessage(
+            "ERRO CRÍTICO: Lista de intervalos máximos não pode ser nula. Resposta: %s",
+            responseContent)
+        .isNotNull()
+        .withFailMessage(
+            "ERRO CRÍTICO: Lista de intervalos máximos não pode estar vazia. Resposta: %s",
+            responseContent)
+        .isNotEmpty();
+
+    System.out.println("[TESTE] Intervalos mínimos encontrados: " + response.getMin());
+    System.out.println("[TESTE] Intervalos máximos encontrados: " + response.getMax());
+
+    // VALIDAÇÃO ESPECÍFICA 1: Joel Silver deve aparecer no intervalo mínimo (1 ano: 1990-1991)
+    boolean joelSilverFound =
+        response.getMin().stream()
+            .anyMatch(
+                interval ->
+                    "Joel Silver".equals(interval.getProducer())
+                        && interval.getInterval() == 1
+                        && interval.getPreviousWin() == 1990
+                        && interval.getFollowingWin() == 1991);
+
+    if (!joelSilverFound) {
+      System.err.println("[ERRO] Joel Silver NÃO encontrado nos intervalos mínimos!");
+      System.err.println("[ERRO] Intervalos mínimos atuais: " + response.getMin());
+      System.err.println(
+          "[ERRO] Esperado: Joel Silver com intervalo=1, previousWin=1990, followingWin=1991");
     }
 
-    // Valida anos válidos (devem ser anos positivos e realistas)
+    assertThat(joelSilverFound)
+        .withFailMessage(
+            "FALHA NA VALIDAÇÃO: Joel Silver deve aparecer no intervalo mínimo com exatamente 1 ano"
+                + " (1990-1991).\n"
+                + "Intervalos mínimos encontrados: %s\n"
+                + "Verifique se o arquivo test/resources/movielist.csv contém os dados corretos"
+                + " para Joel Silver.",
+            response.getMin())
+        .isTrue();
+
+    // VALIDAÇÃO ESPECÍFICA 2: Matthew Vaughn deve aparecer no intervalo máximo (13 anos: 2002-2015)
+    boolean matthewVaughnFound =
+        response.getMax().stream()
+            .anyMatch(
+                interval ->
+                    "Matthew Vaughn".equals(interval.getProducer())
+                        && interval.getInterval() == 13
+                        && interval.getPreviousWin() == 2002
+                        && interval.getFollowingWin() == 2015);
+
+    if (!matthewVaughnFound) {
+      System.err.println("[ERRO] Matthew Vaughn NÃO encontrado nos intervalos máximos!");
+      System.err.println("[ERRO] Intervalos máximos atuais: " + response.getMax());
+      System.err.println(
+          "[ERRO] Esperado: Matthew Vaughn com intervalo=13, previousWin=2002, followingWin=2015");
+    }
+
+    assertThat(matthewVaughnFound)
+        .withFailMessage(
+            "FALHA NA VALIDAÇÃO: Matthew Vaughn deve aparecer no intervalo máximo com exatamente 13"
+                + " anos (2002-2015).\n"
+                + "Intervalos máximos encontrados: %s\n"
+                + "Verifique se o arquivo test/resources/movielist.csv contém os dados corretos"
+                + " para Matthew Vaughn.",
+            response.getMax())
+        .isTrue();
+
+    // VALIDAÇÃO ESPECÍFICA 3: Verificar que o intervalo mínimo é exatamente 1
+    int actualMinInterval = response.getMin().get(0).getInterval();
+    assertThat(actualMinInterval)
+        .withFailMessage(
+            "FALHA CRÍTICA: O intervalo mínimo deve ser exatamente 1, mas foi %d.\n"
+                + "Isso indica que os dados do CSV ou a lógica de cálculo foram alterados!",
+            actualMinInterval)
+        .isEqualTo(1);
+
+    // VALIDAÇÃO ESPECÍFICA 4: Verificar que o intervalo máximo é exatamente 13
+    int actualMaxInterval = response.getMax().get(0).getInterval();
+    assertThat(actualMaxInterval)
+        .withFailMessage(
+            "FALHA CRÍTICA: O intervalo máximo deve ser exatamente 13, mas foi %d.\n"
+                + "Isso indica que os dados do CSV ou a lógica de cálculo foram alterados!",
+            actualMaxInterval)
+        .isEqualTo(13);
+
+    // VALIDAÇÃO ESPECÍFICA 5: Verificar consistência lógica
+    assertThat(actualMinInterval)
+        .withFailMessage(
+            "ERRO LÓGICO: Intervalo mínimo (%d) deve ser menor ou igual ao máximo (%d)",
+            actualMinInterval, actualMaxInterval)
+        .isLessThanOrEqualTo(actualMaxInterval);
+
+    // VALIDAÇÃO ESPECÍFICA 6: Verificar que todos os anos são válidos e realistas
     response
         .getMin()
         .forEach(
             interval -> {
-              assertThat(interval.getPreviousWin()).isPositive();
-              assertThat(interval.getFollowingWin()).isPositive();
+              assertThat(interval.getPreviousWin())
+                  .withFailMessage(
+                      "ERRO: Ano anterior inválido para %s: %d",
+                      interval.getProducer(), interval.getPreviousWin())
+                  .isBetween(1980, 2025);
               assertThat(interval.getFollowingWin())
-                  .isGreaterThanOrEqualTo(interval.getPreviousWin());
+                  .withFailMessage(
+                      "ERRO: Ano seguinte inválido para %s: %d",
+                      interval.getProducer(), interval.getFollowingWin())
+                  .isBetween(1980, 2025);
+              assertThat(interval.getFollowingWin())
+                  .withFailMessage(
+                      "ERRO LÓGICO: Ano seguinte (%d) deve ser maior que ano anterior (%d) para %s",
+                      interval.getFollowingWin(), interval.getPreviousWin(), interval.getProducer())
+                  .isGreaterThan(interval.getPreviousWin());
             });
 
     response
         .getMax()
         .forEach(
             interval -> {
-              assertThat(interval.getPreviousWin()).isPositive();
-              assertThat(interval.getFollowingWin()).isPositive();
+              assertThat(interval.getPreviousWin())
+                  .withFailMessage(
+                      "ERRO: Ano anterior inválido para %s: %d",
+                      interval.getProducer(), interval.getPreviousWin())
+                  .isBetween(1980, 2025);
               assertThat(interval.getFollowingWin())
-                  .isGreaterThanOrEqualTo(interval.getPreviousWin());
+                  .withFailMessage(
+                      "ERRO: Ano seguinte inválido para %s: %d",
+                      interval.getProducer(), interval.getFollowingWin())
+                  .isBetween(1980, 2025);
+              assertThat(interval.getFollowingWin())
+                  .withFailMessage(
+                      "ERRO LÓGICO: Ano seguinte (%d) deve ser maior que ano anterior (%d) para %s",
+                      interval.getFollowingWin(), interval.getPreviousWin(), interval.getProducer())
+                  .isGreaterThan(interval.getPreviousWin());
             });
+
+    System.out.println(
+        "[TESTE] ✅ TODAS AS VALIDAÇÕES PASSARAM! Os dados estão exatamente como esperado.");
   }
 
   /**
